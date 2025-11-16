@@ -1,0 +1,3 @@
+User can see a list of hotels
+User can book a hotel
+User can a get a reservation confirmation
