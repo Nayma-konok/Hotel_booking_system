@@ -1,6 +1,8 @@
 import pandas as pd
 
 df=pd.read_csv("hotels.csv", dtype={"id":str})
+df_cards = pd.read_csv("cards.csv", dtype=str).to_dict(orient="records")
+
 
 
 class Hotel:
@@ -31,12 +33,27 @@ class ReservationConfermation:
 
     def generate(self):
         content=f"""
-        Thank you for yout reservation
+        Thank you for your reservation
         Here is your booking data:
         Name:{self.customer_name}
         Hotel name:{self.hotel.name}
         """
         return content
+    
+class CreditCard:
+    def __init__(self, number):
+        self.number=number
+   
+    
+    def validate(self, expiration, holder, cvc):
+        for card in df_cards:
+            if (card["number"] == self.number and
+                card["expiration"] == expiration and
+                card["holder"] == holder and
+                card["cvc"] == cvc):
+                return True
+        return False
+
 
 print(df)
 
@@ -44,10 +61,16 @@ hotel_ID=input("Enter the id of the hotel:")
 hotel=Hotel(hotel_ID)
 
 if hotel.available():
-    hotel.book_hotel()
-    name=input("Enter a name:")
-    reservation_confermation=ReservationConfermation(customer_name=name, hotel_obj=hotel)
-    print(reservation_confermation.generate())
+    # card_number=input("Enter your card number:")
+    credit_card=CreditCard(number="1234")
+    if credit_card.validate(expiration="12/26", cvc="123", holder="JOHN SMITH"):
+        hotel.book_hotel()
+        name=input("Enter a name:")
+        reservation_confermation=ReservationConfermation(customer_name=name, hotel_obj=hotel)
+        print(reservation_confermation.generate())
+    
+    else:
+        print("There was a problem with your payment")
 
 else:
     print("Hotel is not free")
