@@ -2,7 +2,7 @@ import pandas as pd
 
 df=pd.read_csv("hotels.csv", dtype={"id":str})
 df_cards = pd.read_csv("cards.csv", dtype=str).to_dict(orient="records")
-
+df_cardsecurity=pd.read_csv("card_security.csv", dtype=str)
 
 
 class Hotel:
@@ -54,21 +54,30 @@ class CreditCard:
                 return True
         return False
 
-
+class CreditcardSecurity(CreditCard):
+    def security(self, given_password):
+        password=df_cardsecurity.loc[df_cardsecurity["number"]==self.number, "password"].squeeze()
+        if password==given_password:
+            return True
+        else:
+            return False
+        
 print(df)
 
 hotel_ID=input("Enter the id of the hotel:")
 hotel=Hotel(hotel_ID)
 
 if hotel.available():
-    # card_number=input("Enter your card number:")
-    credit_card=CreditCard(number="1234")
+    credit_card=CreditcardSecurity(number="1234")
     if credit_card.validate(expiration="12/26", cvc="123", holder="JOHN SMITH"):
-        hotel.book_hotel()
-        name=input("Enter a name:")
-        reservation_confermation=ReservationConfermation(customer_name=name, hotel_obj=hotel)
-        print(reservation_confermation.generate())
-    
+        # given_password=input("Enter a password:")
+        if credit_card.security(given_password="mypass"):
+            hotel.book_hotel()
+            name=input("Enter a name:")
+            reservation_confermation=ReservationConfermation(customer_name=name, hotel_obj=hotel)
+            print(reservation_confermation.generate())
+        else:
+            print("Information is not correct")
     else:
         print("There was a problem with your payment")
 
